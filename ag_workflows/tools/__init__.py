@@ -1,5 +1,6 @@
 from .hr_tool import hr_tool
-from .leaves import applyleave_tool, outofoffice_tool
+from .leaves.applyleave_tool import applyleave_tool
+from .leaves.outofoffice_tool import outofoffice_tool
 from .summarize_tool import summarize_tool
 
 TOOL_REGISTRY = {
