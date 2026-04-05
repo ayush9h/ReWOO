@@ -50,7 +50,7 @@ uv pip install -r requirements.txt
 ```
 - Script Execution
 ```
-python main.py
+python app.py
 ```
 
 

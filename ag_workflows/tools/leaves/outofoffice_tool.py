@@ -1,3 +1,3 @@
 async def outofoffice_tool(input_data: dict) -> str:
-    print(input_data)
-    return f"Policy data for {input_data}"
+
+    return f"Out of office successfully applied for {input_data}"
