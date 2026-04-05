@@ -11,7 +11,10 @@ class Evidence(BaseModel):
         default=None,
         description="Output from the worker after running the tool if present",
     )
-    tool_name: Literal["WeatherTool", "LeaveTool"] | None
+    tool_name: Optional[str] = Field(
+        default=None,
+        description="Name of the tool to execute (must match TOOL_REGISTRY)",
+    )
     tool_input: dict[str, Any] = Field(
         description="Inputs valid for the tool execution"
     )
@@ -25,6 +28,13 @@ class Step(BaseModel):
         description="Instruction for the worker to execute itself",
     )
     evidence: Evidence = Field(description="Placeholder for the result")
+    depends_on: List = Field(
+        description="List of step_ids that this step is depended on before its execution",
+    )
+    next_tool_call: List = Field(
+        description="List of tool names to be called next if the current tool succeeds"
+    )
+    status: Literal["pending", "running", "success", "failed"] = "pending"
 
 
 class Plan(BaseModel):

@@ -12,19 +12,27 @@ def planner_prompt_parser():
 
     prompt = PromptTemplate(
         template="""
-    You are a **STRICT** planning agent in a ReWOO system.
+You are a **STRICT** planning agent in a ReWOO system.
 
-    Your job is **ONLY** to generate a structured execution plan.
+Your job is **ONLY** to generate a structured execution plan.
 
-    User Query:
-    {query}
+User Query:
+{query}
 
-    **IMP**
-     - Evidence content is empty at this stage. Do not add anything in that.
-     - Collate inputs wherever possible, keep steps as minimum as possible.
-    Return **ONLY** valid JSON matching schema.
+Available Tools:
+{tools}
 
-    {format_instructions}
+Rules:
+- Use ONLY the tools listed above
+- Use exact tool names
+- Fill tool_input strictly as per schema
+- Do NOT hallucinate tools and follow the tools description, it is their **ROLE**
+- Evidence content must be empty
+- Minimize steps
+- Respect dependencies and carefully the `depends_on` parameter in the tool definition, if it is None, then it can be executed then depends_on = [] else fill the list with the depends_on based on the depends_on parameter defined in the tool
+- If a tool is called, check the `next_tool_call` parameters. If it is not None, then call the tool, else do not call the tool
+
+{format_instructions}
     """,
         input_variables=["query"],
         partial_variables={"format_instructions": parser.get_format_instructions()},

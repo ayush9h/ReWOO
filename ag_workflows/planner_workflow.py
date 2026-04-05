@@ -4,22 +4,38 @@ Implementation of the planner agnet node
 from langchain_core.messages import SystemMessage
 from langchain_groq import ChatGroq
 
+from ag_workflows.tools import TOOL_REGISTRY
 from config.development import settings
 from prompts.planner import planner_prompt_parser
 from schemas.agent_schema import AgentState
 
 llm = ChatGroq(
-    model="llama-3.1-8b-instant",
+    model="openai/gpt-oss-20b",
     streaming=True,
+    reasoning_effort=None,
+    reasoning_format=None,
     api_key=settings.GROQ_API_KEY,
 )
 
 
 async def planner_node(state: AgentState) -> AgentState:
+
+    tools_for_prompt = [
+        {
+            "name": t["name"],
+            "description": t["description"],
+            "input_schema": t["input_schema"],
+            "depends_on": t["depends_on"],
+            "next_tool_call": t["next_tool"],
+        }
+        for t in TOOL_REGISTRY.values()
+    ]
+
     planner_prompt, planner_parser = planner_prompt_parser()
 
     planner_prompt = planner_prompt.format(
-        query=state.get("query")[-1],
+        query=state.get("query")[-1].content,
+        tools=tools_for_prompt,
     )
 
     messages = [
