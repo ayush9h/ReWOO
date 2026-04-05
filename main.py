@@ -7,16 +7,14 @@ from schemas.agent_schema import AgentState
 
 
 async def execute(query: str):
-    """
-    Async runner for the graph
-    """
 
     initial_state: AgentState = {
         "query": [HumanMessage(content=query)],
     }  # type: ignore
 
     result = await app.ainvoke(initial_state)
-    return result
+
+    return result.get("final_response", "")
 
 
 if __name__ == "__main__":

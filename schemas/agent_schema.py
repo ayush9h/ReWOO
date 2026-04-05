@@ -9,3 +9,4 @@ from schemas.plan_schema import Plan
 class AgentState(TypedDict):
     query: Annotated[List[BaseMessage], add_messages]
     plan: Optional[Plan] | None
+    final_response: str | None
