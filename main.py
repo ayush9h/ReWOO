@@ -13,6 +13,7 @@ async def execute(query: str):
     }  # type: ignore
 
     result = await app.ainvoke(initial_state)
+    # print(result)
 
     return result.get("final_response", "")
 

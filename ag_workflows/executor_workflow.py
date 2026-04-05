@@ -48,11 +48,19 @@ async def executor_node(state: AgentState) -> AgentState:
         return state
 
     curr_ready_steps = get_ready_steps(plan)
-    print(f"Current Ready steps: {curr_ready_steps}")
 
-    await asyncio.gather(*(execute(step) for step in curr_ready_steps))
+    tasks = []
+    try:
+        for step in curr_ready_steps:
+            task = asyncio.create_task(execute(step))
+            tasks.append(task)
 
-    print(state)
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+    finally:
+        for task in tasks:
+            if not task.done():
+                task.cancel()
 
     return state
 
