@@ -29,6 +29,14 @@ Summarizer Node (LLM)
 Final Response
 ```
 
+### Response
+![Response UI](https://github.com/user-attachments/assets/0efb4e10-5007-417c-9919-5bbea167e095)
+
+
+### Execution Workflow
+![Steps UI](https://github.com/user-attachments/assets/752f394e-8c2a-4ee1-9ff2-4da78639dc8c)
+
+
 ## Usage
 
 - Setup environment
