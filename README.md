@@ -1,5 +1,12 @@
 ## ReWOO(**Re**asoning **W**ith**O**ut **O**bservation)
 
+## TODO
+
+- Add streaming with the React framework
+- Add HITL(Human in the loop) with the memory
+- Optional: Prometheus monitoring on the endpoints
+
+
 LangGraph implementation of the ReWOO(Reasoning without Observation) framework.
 
 [Research Article Link](https://arxiv.org/abs/2305.18323)

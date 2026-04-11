@@ -1,8 +1,7 @@
+from config.development import settings
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
-
-from server.config.development import settings
-from server.schemas.agent_schema import AgentState
+from schemas.agent_schema import AgentState
 
 llm = ChatGroq(
     model="llama-3.1-8b-instant",

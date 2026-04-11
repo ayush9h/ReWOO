@@ -1,13 +1,12 @@
 """
 Implementation of the planner agnet node
 """
+from ag_workflows.tools import TOOL_REGISTRY
+from config.development import settings
 from langchain_core.messages import SystemMessage
 from langchain_groq import ChatGroq
-
-from server.ag_workflows.tools import TOOL_REGISTRY
-from server.config.development import settings
-from server.prompts.planner import planner_prompt_parser
-from server.schemas.agent_schema import AgentState
+from prompts.planner import planner_prompt_parser
+from schemas.agent_schema import AgentState
 
 llm = ChatGroq(
     model="openai/gpt-oss-20b",

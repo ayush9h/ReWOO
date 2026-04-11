@@ -1,8 +1,8 @@
 import asyncio
 from typing import Dict
 
-from server.ag_workflows.tools import TOOL_REGISTRY
-from server.schemas.agent_schema import AgentState
+from ag_workflows.tools import TOOL_REGISTRY
+from schemas.agent_schema import AgentState
 
 
 def is_step_ready(step, steps_mp: Dict):

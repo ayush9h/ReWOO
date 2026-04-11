@@ -1,7 +1,6 @@
+from ag_workflows import executor_node, planner_node, summarizer_node
 from langgraph.graph import END, START, StateGraph
-
-from server.ag_workflows import executor_node, planner_node, summarizer_node
-from server.schemas.agent_schema import AgentState
+from schemas.agent_schema import AgentState
 
 
 def should_continue(state: AgentState) -> str:
