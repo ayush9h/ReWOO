@@ -55,13 +55,12 @@ async def conversation(websocket: WebSocket):
 
                     if planner_data:
                         plan = planner_data.get("plan", "")
-                        for step in plan.steps:
-                            await websocket.send_json(
-                                {
-                                    "type": "plan",
-                                    "data": step.plan,
-                                }
-                            )
+                        await websocket.send_json(
+                            {
+                                "type": "plan",
+                                "data": [step.plan for step in plan.steps],
+                            }
+                        )
 
                 # Send the final response to THe UI
                 if "summarizer" in chunk:
