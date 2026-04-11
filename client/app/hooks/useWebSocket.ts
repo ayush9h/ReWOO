@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+type Message =
+  | { role: "user"; content: string }
+  | { role: "assistant"; content: string }
+  | { role: "plan"; content: string[] };
 
 const API_BASE = "127.0.0.1:8000/v1/conversation";
 
@@ -36,7 +36,17 @@ export function useWebSocket() {
         ws.onmessage = (event) => {
           const payload = JSON.parse(event.data);
 
-          if (payload.type === "plan" || payload.type === "summarizer") {
+          if (payload.type === "plan") {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "plan",
+                content: payload.data,
+              },
+            ]);
+          }
+
+          if (payload.type === "summarizer") {
             setMessages((prev) => [
               ...prev,
               {
