@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col  overflow-hidden">
       <div className="p-4 text-center text-olive-200 font-semibold shrink-0">
-        ReWOO and Human in the Loop Integrated Assistant
+        ReWOO Assistant
       </div>
 
       <div className="flex-1 flex justify-center overflow-hidden">
