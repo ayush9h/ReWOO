@@ -35,13 +35,14 @@ Final Response
 
 
 
-# Human In The Loop - Acceptance
-<img width="1051" height="915" alt="image" src="https://github.com/user-attachments/assets/435599c9-df52-4243-a732-c067606ccb1a" />
-<img width="1081" height="912" alt="image" src="https://github.com/user-attachments/assets/b0f1486e-8ea2-4ddd-a514-d193dbc29fad" />
+## Human In The Loop - Acceptance
+<img width="1307" height="915" alt="image" src="https://github.com/user-attachments/assets/3370c97d-9469-45fd-9862-1a3f3a6d61b4" />
+<img width="1162" height="915" alt="image" src="https://github.com/user-attachments/assets/795ee8ef-1c81-40de-bf89-c5c97c58d082" />
 
 
-# Human In the Loop - Reject
-<img width="1048" height="911" alt="image" src="https://github.com/user-attachments/assets/8b38f86e-4a4f-4e54-8a30-afa8622abfb6" />
+## Human In the Loop - Reject
+<img width="1207" height="912" alt="image" src="https://github.com/user-attachments/assets/7d20269c-9eca-4734-9b95-8de42675f1dc" />
+
 
 
 ## Usage
