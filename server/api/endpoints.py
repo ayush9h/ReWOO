@@ -1,6 +1,7 @@
 import uuid
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, WebSocketException
+from fastapi import (APIRouter, WebSocket, WebSocketDisconnect,
+                     WebSocketException)
 from langchain_core.messages import HumanMessage
 from langchain_core.runnables.config import RunnableConfig
 from langgraph.types import Command

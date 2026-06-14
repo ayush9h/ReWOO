@@ -1,6 +1,7 @@
-from api.endpoints import chat_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from api.endpoints import chat_router
 
 app = FastAPI(
     description="ReWOO + Human in the loop",

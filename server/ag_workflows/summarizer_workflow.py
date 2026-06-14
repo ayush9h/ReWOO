@@ -1,6 +1,7 @@
-from config.development import settings
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_groq import ChatGroq
+
+from config.development import settings
 from schemas.agent_schema import AgentState
 
 llm = ChatGroq(

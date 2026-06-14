@@ -23,6 +23,9 @@ def get_ready_steps(plan):
 
 
 async def execute(step):
+    """
+    Executes a step by tool calling and human approval checks
+    """
     try:
         tool = TOOL_REGISTRY.get(step.evidence.tool_name)
         if not tool:
@@ -38,6 +41,7 @@ async def execute(step):
 
             return
 
+        # Run the tool as dependency resolved
         step.status = "running"
         result = await tool["fn"](step.evidence.tool_input)
 
@@ -57,6 +61,7 @@ async def executor_node(state: AgentState) -> AgentState:
 
     curr_ready_steps = get_ready_steps(plan)
 
+    # Run the steps sequentially(can be improved) for parallel execution for non-dependent calls.
     for step in curr_ready_steps:
         await execute(step)
 
