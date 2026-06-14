@@ -19,6 +19,7 @@ TOOL_REGISTRY = {
         },
         "fn": hr_tool,
         "require_approval": False,
+        "depends_on": None,
         "next_tool": None,
     },
     "SummaryTool": {
@@ -54,6 +55,7 @@ TOOL_REGISTRY = {
         },
         "fn": applyleave_tool,
         "require_approval": True,
+        "depends_on": None,
         "next_tool": "OutOfOfficeTool",
     },
     "OutOfOfficeTool": {
@@ -71,6 +73,7 @@ TOOL_REGISTRY = {
         },
         "fn": outofoffice_tool,
         "require_approval": False,
+        "depends_on": ["LeaveTool"] or None,
         "next_tool": None,
     },
 }

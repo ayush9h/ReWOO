@@ -26,6 +26,7 @@ async def planner_node(state: AgentState) -> AgentState:
             "name": t["name"],
             "description": t["description"],
             "input_schema": t["input_schema"],
+            "depends_on": t["depends_on"],
             "next_tool_call": t["next_tool"],
         }
         for t in TOOL_REGISTRY.values()
