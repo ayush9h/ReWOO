@@ -1,16 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useWebSocket } from "./hooks/useWebSocket";
 import TextareaAutosize from "react-textarea-autosize";
-
+import { useWebSocket } from "./hooks/useWebSocket";
 
 export default function Home() {
-  const { messages, sendMessage } = useWebSocket();
+  const { messages, sendMessage, pendingApproval, respondToApproval } =
+    useWebSocket();
+
   const [input, setInput] = useState("");
 
+  const handleSend = () => {
+    sendMessage(input);
+    setInput("");
+  };
+
   return (
-    <div className="h-screen flex flex-col  overflow-hidden">
+    <div className="h-screen flex flex-col overflow-hidden">
       <div className="p-4 text-center text-olive-200 font-semibold shrink-0">
         ReWOO Assistant
       </div>
@@ -54,20 +60,65 @@ export default function Home() {
                 </div>
               );
             })}
+
+            {pendingApproval && (
+              <div className="flex justify-start">
+                <div className="bg-yellow-100 text-yellow-950 border border-yellow-500 rounded-lg p-4 max-w-6xl text-sm shadow space-y-3">
+                  <div className="font-semibold">Approval required</div>
+
+                  <div>{pendingApproval.message}</div>
+
+                  {pendingApproval.tool_name && (
+                    <div>
+                      Tool:{" "}
+                      <span className="font-mono">
+                        {pendingApproval.tool_name}
+                      </span>
+                    </div>
+                  )}
+
+                  {pendingApproval.tool_input && (
+                    <pre className="text-xs bg-yellow-50 border border-yellow-300 rounded p-2 overflow-x-auto">
+                      {JSON.stringify(pendingApproval.tool_input, null, 2)}
+                    </pre>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => respondToApproval(true)}
+                      className="px-4 py-2 rounded bg-green-700 text-white hover:bg-green-600"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      onClick={() => respondToApproval(false)}
+                      className="px-4 py-2 rounded bg-red-700 text-white hover:bg-red-600"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="shrink-0 p-3">
-            <div className="flex flex-col  overflow-hidden gap-2 border rounded-xl border-olive-700/70 bg-olive-800/30">
+            <div className="flex flex-col overflow-hidden gap-2 border rounded-xl border-olive-700/70 bg-olive-800/30">
               <TextareaAutosize
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask anything..."
-                className="px-4 py-2 rounded-lg outline-none resize-none  text-olive-100 placeholder:text-olive-400"
+                placeholder={
+                  pendingApproval
+                    ? "Approve or reject the pending action first..."
+                    : "Ask anything..."
+                }
+                disabled={Boolean(pendingApproval)}
+                className="px-4 py-2 rounded-lg outline-none resize-none text-olive-100 placeholder:text-olive-400 disabled:opacity-50"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
-                    sendMessage(input);
-                    setInput("")
+                    handleSend();
                   }
                 }}
                 minRows={1}
@@ -76,11 +127,9 @@ export default function Home() {
 
               <div className="flex justify-end px-2 pb-2">
                 <button
-                  onClick={() => {
-                    sendMessage(input);
-                    setInput("");
-                  }}
-                  className="px-5 py-2 rounded-lg bg-olive-700 hover:bg-olive-600 transition-all text-olive-100"
+                  onClick={handleSend}
+                  disabled={Boolean(pendingApproval)}
+                  className="px-5 py-2 rounded-lg bg-olive-700 hover:bg-olive-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-olive-100"
                 >
                   Send
                 </button>

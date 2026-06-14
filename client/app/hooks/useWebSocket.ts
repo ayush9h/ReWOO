@@ -1,39 +1,50 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useRef, useState } from "react";
 
 type Message =
   | { role: "user"; content: string }
   | { role: "assistant"; content: string }
   | { role: "plan"; content: string[] };
 
+type InterruptPayload = {
+  message: string;
+  tool_name?: string;
+  tool_input?: Record<string, unknown>;
+};
+
 const API_BASE = "127.0.0.1:8000/v1/conversation";
 
 export function useWebSocket() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [pendingApproval, setPendingApproval] =
+    useState<InterruptPayload | null>(null);
+
+  const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
+    let socket: WebSocket | null = null;
+
     const init = async () => {
       try {
         const res = await fetch(`http://${API_BASE}/c`, {
           method: "POST",
         });
 
-        if (!res.ok)
+        if (!res.ok) {
           throw new Error(`HTTP error occurred due to: ${res.statusText}`);
+        }
+
         const { request_id } = await res.json();
 
-        // Establishes the socket connection
-        const ws = new WebSocket(`ws://${API_BASE}/c/${request_id}`);
+        socket = new WebSocket(`ws://${API_BASE}/c/${request_id}`);
+        wsRef.current = socket;
 
-        ws.onopen = () => {
+        socket.onopen = () => {
           console.log("Connected successfully through the websocket server");
         };
 
-        setWs(ws);
-
-        // Stream the events on the UI
-        ws.onmessage = (event) => {
+        socket.onmessage = (event) => {
           const payload = JSON.parse(event.data);
 
           if (payload.type === "plan") {
@@ -55,20 +66,50 @@ export function useWebSocket() {
               },
             ]);
           }
+
+          if (payload.type === "interrupt") {
+            setPendingApproval(payload.data);
+
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "assistant",
+                content:
+                  payload.data?.message ??
+                  "Approval required before continuing.",
+              },
+            ]);
+          }
+
+          if (payload.type === "error") {
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "assistant",
+                content: payload.data,
+              },
+            ]);
+          }
         };
-        return () => {
-          ws?.close();
+
+        socket.onclose = () => {
+          wsRef.current = null;
         };
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
     init();
+
+    return () => {
+      socket?.close();
+    };
   }, []);
 
-  //   Send the user the message
   const sendMessage = (input: string) => {
+    const ws = wsRef.current;
+
     if (!ws || ws.readyState !== WebSocket.OPEN) {
       setMessages((prev) => [
         ...prev,
@@ -79,11 +120,60 @@ export function useWebSocket() {
 
     if (!input.trim()) return;
 
-    // Quries the backend
-    ws.send(JSON.stringify({ query: input }));
+    if (pendingApproval) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Please approve or reject the pending action first.",
+        },
+      ]);
+      return;
+    }
+
+    ws.send(
+      JSON.stringify({
+        type: "query",
+        query: input,
+      }),
+    );
 
     setMessages((prev) => [...prev, { role: "user", content: input }]);
   };
 
-  return { messages, sendMessage };
+  const respondToApproval = (approved: boolean) => {
+    const ws = wsRef.current;
+
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "Socket not connected" },
+      ]);
+      return;
+    }
+
+    ws.send(
+      JSON.stringify({
+        type: "resume",
+        approved,
+      }),
+    );
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: approved ? "Approved" : "Rejected",
+      },
+    ]);
+
+    setPendingApproval(null);
+  };
+
+  return {
+    messages,
+    sendMessage,
+    pendingApproval,
+    respondToApproval,
+  };
 }
