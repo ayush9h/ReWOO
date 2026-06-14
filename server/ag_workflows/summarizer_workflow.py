@@ -1,14 +1,7 @@
 from langchain_core.messages import HumanMessage, SystemMessage
-from langchain_groq import ChatGroq
 
-from config.development import settings
+from config.llm import summarizer_llm
 from schemas.agent_schema import AgentState
-
-llm = ChatGroq(
-    model="llama-3.1-8b-instant",
-    api_key=settings.GROQ_API_KEY,
-    streaming=False,
-)
 
 
 def build_execution_context(plan) -> str:
@@ -50,7 +43,7 @@ Rules:
         HumanMessage(content=execution_context),
     ]
 
-    response = await llm.ainvoke(messages)
+    response = await summarizer_llm.ainvoke(messages)
 
     state["final_response"] = str(response.content)
 

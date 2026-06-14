@@ -3,20 +3,11 @@ Implementation of the planner agnet node
 """
 
 from langchain_core.messages import SystemMessage
-from langchain_groq import ChatGroq
 
 from ag_workflows.tools import TOOL_REGISTRY
-from config.development import settings
+from config.llm import planner_llm
 from prompts.planner import planner_prompt_parser
 from schemas.agent_schema import AgentState
-
-llm = ChatGroq(
-    model="openai/gpt-oss-20b",
-    streaming=True,
-    reasoning_effort=None,
-    reasoning_format=None,
-    api_key=settings.GROQ_API_KEY,
-)
 
 
 async def planner_node(state: AgentState) -> AgentState:
@@ -44,7 +35,7 @@ async def planner_node(state: AgentState) -> AgentState:
         *state.get("query", ""),
     ]
 
-    output = await llm.ainvoke(messages)
+    output = await planner_llm.ainvoke(messages)
     generated_plan = planner_parser.parse(output.content)  # type:ignore
 
     state["plan"] = generated_plan
