@@ -1,7 +1,7 @@
 ## ReWOO(**Re**asoning **W**ith**O**ut **O**bservation)
 
 
-LangGraph implementation of the ReWOO(Reasoning without Observation) framework.
+LangGraph implementation of the ReWOO(Reasoning without Observation) framework along with Human In The Loop pattern.
 
 [Research Article Link](https://arxiv.org/abs/2305.18323)
 
@@ -30,26 +30,36 @@ Summarizer Node (LLM)
 Final Response
 ```
 
+# Human In The Loop - Acceptance
+<img width="1051" height="915" alt="image" src="https://github.com/user-attachments/assets/435599c9-df52-4243-a732-c067606ccb1a" />
+<img width="1081" height="912" alt="image" src="https://github.com/user-attachments/assets/b0f1486e-8ea2-4ddd-a514-d193dbc29fad" />
 
-### Execution Workflow
-<img width="1919" height="918" alt="image" src="https://github.com/user-attachments/assets/78379e69-080c-4023-b186-6175f9f9794d" />
 
+# Human In the Loop - Reject
+<img width="1048" height="911" alt="image" src="https://github.com/user-attachments/assets/8b38f86e-4a4f-4e54-8a30-afa8622abfb6" />
 
 
 ## Usage
 
+### Backend
 - Setup environment
 ```
-uv venv .venv
-.venv/Scripts/activate
-```
-- Install Dependencies
-```
-uv pip install -r requirements.txt
+uv sync
 ```
 - Script Execution
 ```
-python app.py
+uvicorn main:app
+```
+
+### Frontend
+- Install packages
+```
+npm install
+```
+
+- Run NextJs
+```
+npm run dev
 ```
 
 
