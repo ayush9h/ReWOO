@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
 });
 
@@ -18,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`$ ${dmSans.variable}  h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-olive-900">{children}</body>
+    <html lang="en" className={`$ ${geist.variable}  h-full antialiased`}>
+      <body className="min-h-full flex flex-col bg-stone-800">{children}</body>
     </html>
   );
 }

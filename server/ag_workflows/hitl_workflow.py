@@ -16,7 +16,7 @@ def hitl_node(state: AgentState):
 
     user_approval = interrupt(
         {
-            "message": "Approve tool execution",
+            "message": "The tool requires human intervention. Please approve.",
             "tool_name": step.evidence.tool_name,
             "tool_input": step.evidence.tool_input,
         }
