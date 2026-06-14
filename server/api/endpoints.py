@@ -1,10 +1,13 @@
 import uuid
 
-from ag_workflows.nodes import app
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, WebSocketException
 from langchain_core.messages import HumanMessage
-from schemas import AgentState
+from langchain_core.runnables.config import RunnableConfig
+from langgraph.types import Command
 from starlette.websockets import WebSocketState
+
+from ag_workflows.nodes import app
+from schemas import AgentState
 
 chat_router = APIRouter(
     prefix="/conversation",
@@ -32,29 +35,35 @@ async def generate_req():
 
 
 @chat_router.websocket("/c/{request_id}")
-async def conversation(websocket: WebSocket):
-    """
-    Establishes a connection with the received request_id
-    """
+async def conversation(websocket: WebSocket, request_id: str):
     await websocket.accept()
 
-    try:
-        while True:
-            data = await websocket.receive_json()
-            query = data.get("query")
-            initial_state: AgentState = {
-                "query": [
-                    HumanMessage(content=query),
-                ],
-            }  # type: ignore
-            async for chunk in app.astream(initial_state):
+    thread_id = request_id or str(uuid.uuid4())
 
-                # Send the planner data to the UI
-                if "planner" in chunk:
-                    planner_data = chunk.get("planner")
+    config: RunnableConfig = RunnableConfig(
+        configurable={"thread_id": thread_id},
+    )
 
-                    if planner_data:
-                        plan = planner_data.get("plan", "")
+    async def stream_graph(graph_input):
+        async for chunk in app.astream(graph_input, config=config):
+            if "__interrupt__" in chunk:
+                interrupt_obj = chunk["__interrupt__"][0]
+
+                await websocket.send_json(
+                    {
+                        "type": "interrupt",
+                        "data": interrupt_obj.value,
+                    }
+                )
+                return "interrupted"
+
+            if "planner" in chunk:
+                planner_data = chunk.get("planner")
+
+                if planner_data:
+                    plan = planner_data.get("plan")
+
+                    if plan:
                         await websocket.send_json(
                             {
                                 "type": "plan",
@@ -62,34 +71,83 @@ async def conversation(websocket: WebSocket):
                             }
                         )
 
-                # Send the final response to THe UI
-                if "summarizer" in chunk:
-                    final_resp = chunk.get("summarizer", "").get("final_response")
+            if "summarizer" in chunk:
+                summarizer_data = chunk.get("summarizer") or {}
+                final_resp = summarizer_data.get("final_response")
+
+                await websocket.send_json(
+                    {
+                        "type": "summarizer",
+                        "data": str(final_resp),
+                    }
+                )
+
+        await websocket.send_json({"type": "done"})
+        return "done"
+
+    try:
+        while True:
+            data = await websocket.receive_json()
+            msg_type = data.get("type", "query")
+
+            if msg_type == "query":
+                query = data.get("query", "").strip()
+
+                if not query:
                     await websocket.send_json(
                         {
-                            "type": "summarizer",
-                            "data": f"{final_resp}",
+                            "type": "error",
+                            "data": "Query cannot be empty",
                         }
                     )
+                    continue
 
-            await websocket.send_json({"type": "done"})
+                initial_state: AgentState = {
+                    "query": [
+                        HumanMessage(content=query),
+                    ],
+                }  # type: ignore
 
-    except WebSocketDisconnect:
-        return
-    except WebSocketException as e:
-        if websocket:
-            try:
+                await stream_graph(initial_state)
+
+            elif msg_type == "resume":
+                approved = bool(data.get("approved"))
+
+                await stream_graph(Command(resume={"approved": approved}))
+
+            else:
                 await websocket.send_json(
                     {
                         "type": "error",
-                        "data": f"Error occurred in the system due to: {e}",
+                        "data": f"Unknown message type: {msg_type}",
                     }
                 )
-            except:
-                pass
+
+    except WebSocketDisconnect:
+        return
+
+    except WebSocketException as e:
+        try:
+            await websocket.send_json(
+                {
+                    "type": "error",
+                    "data": f"Error occurred in the system due to: {e}",
+                }
+            )
+        except Exception:
+            pass
+
+    except Exception as e:
+        try:
+            await websocket.send_json(
+                {
+                    "type": "error",
+                    "data": f"Unexpected error occurred due to: {e}",
+                }
+            )
+        except Exception:
+            pass
 
     finally:
         if websocket.client_state == WebSocketState.CONNECTED:
-            await websocket.close(
-                code=1000, reason="Streaming completed without failure"
-            )
+            await websocket.close(code=1000)

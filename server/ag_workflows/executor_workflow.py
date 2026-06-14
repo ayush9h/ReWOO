@@ -1,4 +1,3 @@
-import asyncio
 from typing import Dict
 
 from ag_workflows.tools import TOOL_REGISTRY
@@ -6,7 +5,6 @@ from schemas.agent_schema import AgentState
 
 
 def is_step_ready(step, steps_mp: Dict):
-    # print(step)
     if step.status != "pending":
         return False
 
@@ -26,16 +24,26 @@ def get_ready_steps(plan):
 
 async def execute(step):
     try:
-        step.status = "running"
-
         tool = TOOL_REGISTRY.get(step.evidence.tool_name)
         if not tool:
             raise ValueError("Tool Not found in the registry, please check again")
 
+        require_approval = tool.get("require_approval")
+        approved = step.evidence.tool_input.get("_human_approved", False)
+
+        # If tool requires approval and user not approved
+        if require_approval and not approved:
+            step.status = "pending_human_approval"
+            step.evidence.content = f"Human approval required for tool:{tool}"
+
+            return
+
+        step.status = "running"
         result = await tool["fn"](step.evidence.tool_input)
 
         step.evidence.content = result
         step.status = "success"
+
     except Exception as e:
         step.evidence.content = f"Failure due to {e}"
         step.status = "failed"
@@ -49,17 +57,7 @@ async def executor_node(state: AgentState) -> AgentState:
 
     curr_ready_steps = get_ready_steps(plan)
 
-    tasks = []
-    try:
-        for step in curr_ready_steps:
-            task = asyncio.create_task(execute(step))
-            tasks.append(task)
-
-        await asyncio.gather(*tasks, return_exceptions=True)
-
-    finally:
-        for task in tasks:
-            if not task.done():
-                task.cancel()
+    for step in curr_ready_steps:
+        await execute(step)
 
     return state

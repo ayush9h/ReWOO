@@ -1,10 +1,12 @@
 """
 Implementation of the planner agnet node
 """
-from ag_workflows.tools import TOOL_REGISTRY
-from config.development import settings
+
 from langchain_core.messages import SystemMessage
 from langchain_groq import ChatGroq
+
+from ag_workflows.tools import TOOL_REGISTRY
+from config.development import settings
 from prompts.planner import planner_prompt_parser
 from schemas.agent_schema import AgentState
 
@@ -24,7 +26,6 @@ async def planner_node(state: AgentState) -> AgentState:
             "name": t["name"],
             "description": t["description"],
             "input_schema": t["input_schema"],
-            "depends_on": t["depends_on"],
             "next_tool_call": t["next_tool"],
         }
         for t in TOOL_REGISTRY.values()

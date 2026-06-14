@@ -18,7 +18,7 @@ TOOL_REGISTRY = {
             },
         },
         "fn": hr_tool,
-        "depends_on": None,
+        "require_approval": False,
         "next_tool": None,
     },
     "SummaryTool": {
@@ -36,6 +36,7 @@ TOOL_REGISTRY = {
         },
         "fn": summarize_tool,
         "depends_on": None,
+        "require_approval": False,
         "next_tool": None,
     },
     "LeaveTool": {
@@ -52,7 +53,7 @@ TOOL_REGISTRY = {
             "properties": {"summary": {"type": "string"}},
         },
         "fn": applyleave_tool,
-        "depends_on": None,
+        "require_approval": True,
         "next_tool": "OutOfOfficeTool",
     },
     "OutOfOfficeTool": {
@@ -69,8 +70,7 @@ TOOL_REGISTRY = {
             "properties": {"summary": {"type": "string"}},
         },
         "fn": outofoffice_tool,
-        "depends_on": ["LeaveTool"]
-        or None,  # It depends on the execution of LeaveTool,
+        "require_approval": False,
         "next_tool": None,
     },
 }

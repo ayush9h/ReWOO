@@ -34,7 +34,9 @@ class Step(BaseModel):
     next_tool_call: List = Field(
         description="List of tool names to be called next if the current tool succeeds"
     )
-    status: Literal["pending", "running", "success", "failed"] = "pending"
+    status: Literal[
+        "pending", "running", "success", "failed", "pending", "pending_human_approval"
+    ] = "pending"
 
 
 class Plan(BaseModel):

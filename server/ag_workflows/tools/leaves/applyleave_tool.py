@@ -1,2 +1,5 @@
-async def applyleave_tool(input_data: dict) -> str:
-    return f"Leave Application successfully applied for :{input_data}"
+async def applyleave_tool(input_data: dict):
+    """
+    Requires human approval before applying the leave to the portal
+    """
+    return "leave applied for the date"
