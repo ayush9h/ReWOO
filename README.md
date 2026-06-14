@@ -10,7 +10,7 @@ LangGraph implementation of the ReWOO(Reasoning without Observation) framework a
 **ReWOO** introduces a *plan-and-execute* paradigm where the *workflow*
 
 - Generates a structured execution plan
-- Executes steps using tools with dependency awareness  
+- Executes steps using tools with dependency awareness with human in the loop for tools required approval  
 - Produces a final, user-facing response.
 
 
@@ -21,7 +21,7 @@ Planner Node (LLM)
     ↓
 Structured Plan (Steps + Dependencies)
     ↓
-Executor Node (Async Execution)
+Executor Node (Async Execution) + Human In the Loop
     ↓
 Tool Outputs (Evidence)
     ↓
@@ -29,6 +29,11 @@ Summarizer Node (LLM)
     ↓
 Final Response
 ```
+<img width="1397" height="417" alt="image" src="https://github.com/user-attachments/assets/985651f9-8bfd-4c21-9a13-827457bb58f2" />
+
+
+
+
 
 # Human In The Loop - Acceptance
 <img width="1051" height="915" alt="image" src="https://github.com/user-attachments/assets/435599c9-df52-4243-a732-c067606ccb1a" />
